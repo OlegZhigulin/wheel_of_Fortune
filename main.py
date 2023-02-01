@@ -9,7 +9,7 @@ class App(customtkinter.CTk):
     cursor = con.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS tasks
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT)
+                 task TEXT)
             """)
     customtkinter.set_appearance_mode("dark")
 
@@ -24,6 +24,7 @@ class App(customtkinter.CTk):
         self.textbox = customtkinter.CTkTextbox(self,
                                                 fg_color='#e6e7e8',
                                                 text_color='#0f0f0f',
+                                                state=customtkinter.DISABLED,
                                                 font=('Roboto', 18))
         self.textbox.grid(row=0,
                           column=0,
@@ -82,18 +83,19 @@ class App(customtkinter.CTk):
 
     def add_task(self):
         text = self.text_input_frame.get()
-        bob = (text,)
+        task = (text,)
         self.text_input_frame.delete(0, 'end')
-        self.cursor.execute("INSERT INTO tasks (name) VALUES (?)", bob)
+        self.cursor.execute("INSERT INTO tasks (task) VALUES (?)", task)
         self.con.commit()
         self.show_all()
 
     def show_all(self):
+        self.textbox.configure(state=customtkinter.NORMAL,)
         self.textbox.delete('0.0', 'end')
         self.cursor.execute("SELECT * FROM tasks")
         for task in self.cursor.fetchall():
             self.textbox.insert("end", text=f'{task[0]}. {task[1]}' + '\n')
-
+        self.textbox.configure(state=customtkinter.DISABLED,)
     def random_task(self):
         self.cursor.execute(
             "SELECT * FROM tasks ORDER BY random() LIMIT 1")
